@@ -4,6 +4,8 @@ import com.phimtho.phimtho.DAO.MoviesRepository;
 import com.phimtho.phimtho.Entities.Movies;
 import com.phimtho.phimtho.Service.MoviesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,5 +32,10 @@ public class MoviesServiceImpl implements MoviesService {
     @Override
     public void deleteBook(Movies movie) {
         moviesRepository.delete(movie);
+    }
+
+    @Override
+    public Page<Movies> findMovies(Pageable pageable) {
+        return moviesRepository.findAll(pageable);
     }
 }
