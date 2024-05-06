@@ -1,0 +1,12 @@
+datasource: ''
+ddl-auto: update
+driver-class-name: '"com.microsoft.sqlserver.jdbc.SQLServerDriver"'
+hibernate: ''
+jpa: ''
+password: 123
+port: 8080
+server: ''
+show-sql: true
+spring: ''
+url: '"jdbc:sqlserver://localhost:1433;databaseName=film;encrypt=true;trustServerCertificate=true;"'
+username: spring
