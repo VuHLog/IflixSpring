@@ -2,19 +2,25 @@ package com.iflix.iflix.Service.ServiceImpl;
 
 import com.iflix.iflix.DAO.UsersRepository;
 import com.iflix.iflix.DTO.Request.AuthenticationRequest;
+import com.iflix.iflix.DTO.Request.IntrospectRequest;
 import com.iflix.iflix.DTO.Response.AuthenticationResponse;
+import com.iflix.iflix.DTO.Response.IntrospectResponse;
 import com.iflix.iflix.Entities.Users;
 import com.iflix.iflix.Exception.AppException;
 import com.iflix.iflix.Exception.ErrorCode;
 import com.iflix.iflix.Service.AuthenticationService;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -29,7 +35,27 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    protected static final String SIGN_KEY="ZcCAeQKy0ly5bPdCVHM8bLQp5KJX9eczTqZl7zhjzK42U7SXfALZcWpSjitA5tLX";
+    @Value("${jwt.signerKey}")
+    protected String SIGN_KEY="ZcCAeQKy0ly5bPdCVHM8bLQp5KJX9eczTqZl7zhjzK42U7SXfALZcWpSjitA5tLX";
+
+    @Override
+    public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
+        var token = request.getToken();
+
+        JWSVerifier verifier = new MACVerifier(SIGN_KEY.getBytes());
+
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        var verified = signedJWT.verify(verifier);
+
+        //check thoi han cua token
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+
+        return IntrospectResponse.builder()
+                .valid(verified && expiryTime.after(new Date()))
+                .build();
+    }
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
