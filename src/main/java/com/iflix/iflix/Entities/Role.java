@@ -2,14 +2,16 @@ package com.iflix.iflix.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "role")
 public class Role {
     @Id
@@ -22,5 +24,5 @@ public class Role {
 
     @OneToMany(mappedBy="role")
     @JsonIgnore
-    private Set<Users> users;
+    private Set<User_Role> user_roles;
 }

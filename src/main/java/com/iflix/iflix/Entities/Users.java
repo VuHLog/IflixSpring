@@ -2,10 +2,7 @@ package com.iflix.iflix.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Set;
@@ -15,6 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "users")
 public class Users {
     @Id
@@ -45,8 +43,6 @@ public class Users {
     @JsonIgnore
     private Set<Rates> rates;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
-
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.ALL,CascadeType.MERGE})
+    private Set<User_Role> user_roles;
 }

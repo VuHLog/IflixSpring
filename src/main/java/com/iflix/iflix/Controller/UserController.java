@@ -5,15 +5,18 @@ import com.iflix.iflix.Service.UserService;
 import com.iflix.iflix.DTO.Request.UserCreationRequest;
 import com.iflix.iflix.DTO.Response.ApiResponse;
 import com.iflix.iflix.DTO.Response.UserResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/users")
+@Slf4j
 public class UserController {
     @Autowired
     private UserService userService;
@@ -33,6 +36,12 @@ public class UserController {
             @RequestParam(name = "size", required = false, defaultValue = "5") Integer pageSize,
             @RequestParam(name = "sort", required = false, defaultValue = "ASC") String sort
     ){
+
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        log.info("username: {}",authentication.getName());
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+
         Sort sortable = null;
         if(sort.toUpperCase().equals("ASC")){
             sortable = Sort.by(field).ascending();
