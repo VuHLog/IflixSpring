@@ -48,8 +48,11 @@ public class SecurityConfiguration {
         //validate token
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
+
+                        //chuyen doi JWT thanh Authentication -> thiet lap SecurityContextHolder cho Spring
                         .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
+                        // xu ly truy cap khong co token hoac token khong hop le
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
 

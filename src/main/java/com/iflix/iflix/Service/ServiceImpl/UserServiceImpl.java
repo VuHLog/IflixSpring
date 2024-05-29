@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -43,6 +44,7 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
+    @PreAuthorize("returnObject.username == authentication.name")
     public UserResponse getById(String id) {
         return userMapper.toUserResponse(usersRepository.findById(id).get());
     }
@@ -56,18 +58,21 @@ public class UserServiceImpl implements UserService {
         Users user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
+        //xu ly roles request
         Set<User_Role> user_roles = new HashSet<>();
-        User_Role user_role = new User_Role();
-        if(request.getUser_roles() == null)
+        if(request.getRoles() == null) {
+            User_Role user_role = new User_Role();
             user_role.setRole(roleRepository.findByRoleName("User"));
             user_role.setUser(user);
             user_roles.add(user_role);
-            user.setUser_roles(user_roles);
+        }else {
+            request.getRoles().stream().forEach(s -> user_roles.add(new User_Role(user,roleRepository.findByRoleName(s))));
+        }
+        user.setUser_roles(user_roles);
 
         return userMapper.toUserResponse(usersRepository.save(user));
     }
 
-    @PreAuthorize("returnObject.username == authentication.name")
     @Override
     public Page<UserResponse> getUsers(Pageable pageable) {
         return usersRepository.findAll(pageable).map(userMapper::toUserResponse);
@@ -87,6 +92,25 @@ public class UserServiceImpl implements UserService {
         Users user = usersRepository.findById(userId).get();
         userMapper.updateUser(user, request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        Set<User_Role> user_roles = user.getUser_roles();
+
+        List<String> roleNameRq = request.getRoles().stream().toList();
+        Set<User_Role> user_rolesRq = new HashSet<>();
+        for(int i=0;i<roleNameRq.size();i++){
+            User_Role ur =
+                    userRoleRepository.findByUser_IdAndRole_Id(user.getId(),roleRepository.findByRoleName(roleNameRq.get(i)).getId());
+            if(ur == null)
+                user_rolesRq.add(new User_Role(user,roleRepository.findByRoleName(roleNameRq.get(i))));
+            else {
+                user_roles.remove(ur);
+                user_rolesRq.add(ur);
+            }
+        }
+
+        userRoleRepository.deleteAll(user_roles);
+
+        user.setUser_roles(user_rolesRq);
         return userMapper.toUserResponse(usersRepository.saveAndFlush(user));
     }
 

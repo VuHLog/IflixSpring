@@ -43,6 +43,6 @@ public class Users {
     @JsonIgnore
     private Set<Rates> rates;
 
-    @OneToMany(mappedBy = "user",cascade = {CascadeType.ALL,CascadeType.MERGE})
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.ALL})
     private Set<User_Role> user_roles;
 }

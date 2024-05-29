@@ -1,6 +1,5 @@
-package com.iflix.iflix.DTO.Request;
+package com.iflix.iflix.DTO.Response;
 
-import com.iflix.iflix.Entities.Role;
 import com.iflix.iflix.Entities.User_Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,12 +12,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserUpdateRequest {
-    private String password;
-
-    private String email;
-
-    private String phone;
-
-    private Set<String> roles;
+public class RoleResponse {
+    private String roleName;
 }

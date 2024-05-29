@@ -22,5 +22,5 @@ public class UserCreationRequest {
 
     private String phone;
 
-    private Set<User_Role> user_roles;
+    private Set<String> roles;
 }

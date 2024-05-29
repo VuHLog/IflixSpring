@@ -9,7 +9,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "User_Role")
+@Table(name = "User_Role",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "role_id"})
+        }
+)
 public class User_Role {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -22,4 +26,9 @@ public class User_Role {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+    public User_Role(Users user, Role role) {
+        this.user = user;
+        this.role = role;
+    }
 }
