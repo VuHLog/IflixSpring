@@ -16,6 +16,8 @@ import com.iflix.iflix.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,11 +43,6 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public Page<UserResponse> getUsers(Pageable pageable) {
-        return usersRepository.findAll(pageable).map(userMapper::toUserResponse);
-    }
-
-    @Override
     public UserResponse getById(String id) {
         return userMapper.toUserResponse(usersRepository.findById(id).get());
     }
@@ -68,6 +65,21 @@ public class UserServiceImpl implements UserService {
             user.setUser_roles(user_roles);
 
         return userMapper.toUserResponse(usersRepository.save(user));
+    }
+
+    @PreAuthorize("returnObject.username == authentication.name")
+    @Override
+    public Page<UserResponse> getUsers(Pageable pageable) {
+        return usersRepository.findAll(pageable).map(userMapper::toUserResponse);
+    }
+
+    public UserResponse getMyInfo(){
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+
+        Users user = usersRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_EXISTED));
+
+        return userMapper.toUserResponse(user);
     }
 
     @Override
