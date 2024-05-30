@@ -3,6 +3,7 @@ package com.iflix.iflix.Controller;
 import com.iflix.iflix.DTO.Request.AuthenticationRequest;
 import com.iflix.iflix.DTO.Request.IntrospectRequest;
 import com.iflix.iflix.DTO.Request.LogoutRequest;
+import com.iflix.iflix.DTO.Request.RefreshRequest;
 import com.iflix.iflix.DTO.Response.ApiResponse;
 import com.iflix.iflix.DTO.Response.AuthenticationResponse;
 import com.iflix.iflix.DTO.Response.IntrospectResponse;
@@ -35,6 +36,16 @@ public class AuthenticationController {
         var res = authenticationService.introspect(request);
 
         return ApiResponse.<IntrospectResponse>builder()
+                .result(res)
+                .build();
+    }
+
+    @PostMapping("/refresh")
+    public ApiResponse<AuthenticationResponse> authenticate(@RequestBody RefreshRequest request)
+            throws ParseException, JOSEException {
+        var res = authenticationService.refreshToken(request);
+
+        return ApiResponse.<AuthenticationResponse>builder()
                 .result(res)
                 .build();
     }

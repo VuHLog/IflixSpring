@@ -5,6 +5,7 @@ import com.iflix.iflix.DAO.UsersRepository;
 import com.iflix.iflix.DTO.Request.AuthenticationRequest;
 import com.iflix.iflix.DTO.Request.IntrospectRequest;
 import com.iflix.iflix.DTO.Request.LogoutRequest;
+import com.iflix.iflix.DTO.Request.RefreshRequest;
 import com.iflix.iflix.DTO.Response.AuthenticationResponse;
 import com.iflix.iflix.DTO.Response.IntrospectResponse;
 import com.iflix.iflix.Entities.InvalidatedToken;
@@ -17,6 +18,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,8 +45,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGN_KEY="ZcCAeQKy0ly5bPdCVHM8bLQp5KJX9eczTqZl7zhjzK42U7SXfALZcWpSjitA5tLX";
+
+    @NonFinal
+    @Value("${jwt.valid-duration}")
+    protected long VALID_DURATION;
+
+    @NonFinal
+    @Value("${jwt.refreshable-duration}")
+    protected long REFRESHABLE_DURATION;
 
     @Override
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
@@ -95,7 +106,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .issuer("iflix.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli() // het han sau 1 gio
+                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli() // het han sau VALID_DURATION giây
                 ))
                 .jwtID(UUID.randomUUID().toString())  //token ID
 //                .claim("customClaim", "custom") //custom claim
@@ -118,7 +129,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void logout(LogoutRequest request) {
+    public void logout(LogoutRequest request) throws JOSEException, ParseException {
         try {
             var signToken = verifyToken(request.getToken(), true);
 
@@ -129,9 +140,32 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
 
             invalidatedTokenRepository.save(invalidatedToken);
-        } catch (AppException | JOSEException | ParseException exception){
+        } catch (AppException exception){
             log.info("Token already expired");
         }
+    }
+
+    public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
+        var signedJWT = verifyToken(request.getToken(), true);
+
+        var jit = signedJWT.getJWTClaimsSet().getJWTID();
+        var expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        InvalidatedToken invalidatedToken =
+                InvalidatedToken.builder()
+                        .id(jit)
+                        .expiryTime(expiryTime).build();
+
+        invalidatedTokenRepository.save(invalidatedToken);
+
+        var username = signedJWT.getJWTClaimsSet().getSubject();
+
+        var user =
+                usersRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+
+        var token = generateToken(user);
+
+        return AuthenticationResponse.builder().token(token).authenticated(true).build();
     }
 
     private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
@@ -143,7 +177,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var verified = signedJWT.verify(verifier);
 
         //check thoi han cua token
-        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        Date expiryTime = (isRefresh)
+                ? new Date(signedJWT.getJWTClaimsSet().getIssueTime()
+                    .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
+                : signedJWT.getJWTClaimsSet().getExpirationTime();
 
         if (!(verified && expiryTime.after(new Date()))) throw new AppException(ErrorCode.UNAUTHENTICATED);
 

@@ -22,7 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
 
     private final String[] PUBLIC_ENDPOINTS =
-            {"/admin/users","/auth/token","/auth/introspect","/auth/logout"};
+            {"/admin/users","/auth/token","/auth/introspect","/auth/logout","/auth/refresh"};
 
     @Autowired
     @Lazy

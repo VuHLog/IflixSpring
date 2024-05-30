@@ -3,6 +3,7 @@ package com.iflix.iflix.Service;
 import com.iflix.iflix.DTO.Request.AuthenticationRequest;
 import com.iflix.iflix.DTO.Request.IntrospectRequest;
 import com.iflix.iflix.DTO.Request.LogoutRequest;
+import com.iflix.iflix.DTO.Request.RefreshRequest;
 import com.iflix.iflix.DTO.Response.AuthenticationResponse;
 import com.iflix.iflix.DTO.Response.IntrospectResponse;
 import com.iflix.iflix.Entities.Users;
@@ -20,5 +21,7 @@ public interface AuthenticationService {
 
     public String generateToken(Users user);
 
-    public void logout(LogoutRequest request);
+    public void logout(LogoutRequest request) throws JOSEException, ParseException;
+
+    public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException;
 }
