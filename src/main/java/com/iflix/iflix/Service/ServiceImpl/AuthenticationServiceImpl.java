@@ -1,10 +1,13 @@
 package com.iflix.iflix.Service.ServiceImpl;
 
+import com.iflix.iflix.DAO.InvalidatedTokenRepository;
 import com.iflix.iflix.DAO.UsersRepository;
 import com.iflix.iflix.DTO.Request.AuthenticationRequest;
 import com.iflix.iflix.DTO.Request.IntrospectRequest;
+import com.iflix.iflix.DTO.Request.LogoutRequest;
 import com.iflix.iflix.DTO.Response.AuthenticationResponse;
 import com.iflix.iflix.DTO.Response.IntrospectResponse;
+import com.iflix.iflix.Entities.InvalidatedToken;
 import com.iflix.iflix.Entities.Users;
 import com.iflix.iflix.Exception.AppException;
 import com.iflix.iflix.Exception.ErrorCode;
@@ -35,6 +38,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private UsersRepository usersRepository;
 
     @Autowired
+    private InvalidatedTokenRepository invalidatedTokenRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Value("${jwt.signerKey}")
@@ -43,19 +49,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
         var token = request.getToken();
+        boolean isValid = true;
 
-        JWSVerifier verifier = new MACVerifier(SIGN_KEY.getBytes());
-
-        SignedJWT signedJWT = SignedJWT.parse(token);
-
-        var verified = signedJWT.verify(verifier);
-
-        //check thoi han cua token
-        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-
+        try {
+            verifyToken(token, false);
+        } catch (AppException e) {
+            isValid = false;
+        }
 
         return IntrospectResponse.builder()
-                .valid(verified && expiryTime.after(new Date()))
+                .valid(isValid)
                 .build();
     }
 
@@ -79,6 +82,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     }
 
+
+
     @Override
     public String generateToken(Users user){
         // header : xac dinh thuat toan ma hoa cho jwt
@@ -92,7 +97,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli() // het han sau 1 gio
                 ))
-//                .jwtID(UUID.randomUUID().toString())
+                .jwtID(UUID.randomUUID().toString())  //token ID
 //                .claim("customClaim", "custom") //custom claim
                 .claim("scope", buildScope(user)) // để spring security biết role thì cần claim có scope trong jwt
                 .build();
@@ -110,6 +115,42 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             log.error("Cannot create token",e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void logout(LogoutRequest request) {
+        try {
+            var signToken = verifyToken(request.getToken(), true);
+
+            String jit = signToken.getJWTClaimsSet().getJWTID();
+            Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+
+            InvalidatedToken invalidatedToken =
+                    InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
+
+            invalidatedTokenRepository.save(invalidatedToken);
+        } catch (AppException | JOSEException | ParseException exception){
+            log.info("Token already expired");
+        }
+    }
+
+    private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
+
+        JWSVerifier verifier = new MACVerifier(SIGN_KEY.getBytes());
+
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        var verified = signedJWT.verify(verifier);
+
+        //check thoi han cua token
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        if (!(verified && expiryTime.after(new Date()))) throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        return signedJWT;
     }
 
     private String buildScope(Users user) {

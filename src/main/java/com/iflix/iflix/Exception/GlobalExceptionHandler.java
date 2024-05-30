@@ -63,6 +63,7 @@ public class GlobalExceptionHandler {
             var constraintViolation =
                     exception.getBindingResult().getAllErrors().get(0).unwrap(ConstraintViolation.class);
 
+            //attributes gồm các attribute trong annotation
             attributes = constraintViolation.getConstraintDescriptor().getAttributes();
 
             log.info(attributes.toString());

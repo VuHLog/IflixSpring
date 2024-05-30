@@ -2,6 +2,7 @@ package com.iflix.iflix.Controller;
 
 import com.iflix.iflix.DTO.Request.AuthenticationRequest;
 import com.iflix.iflix.DTO.Request.IntrospectRequest;
+import com.iflix.iflix.DTO.Request.LogoutRequest;
 import com.iflix.iflix.DTO.Response.ApiResponse;
 import com.iflix.iflix.DTO.Response.AuthenticationResponse;
 import com.iflix.iflix.DTO.Response.IntrospectResponse;
@@ -35,6 +36,15 @@ public class AuthenticationController {
 
         return ApiResponse.<IntrospectResponse>builder()
                 .result(res)
+                .build();
+    }
+
+    @PostMapping("/logout")
+    public ApiResponse<Void> authenticate(@RequestBody LogoutRequest request)
+            throws ParseException, JOSEException {
+        authenticationService.logout(request);
+
+        return ApiResponse.<Void>builder()
                 .build();
     }
 }
