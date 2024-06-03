@@ -13,6 +13,7 @@ import com.iflix.iflix.Exception.AppException;
 import com.iflix.iflix.Exception.ErrorCode;
 import com.iflix.iflix.Mapper.UserMapper;
 import com.iflix.iflix.Service.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @PreAuthorize("returnObject.username == authentication.name")
     public UserResponse getById(String id) {
-        return userMapper.toUserResponse(usersRepository.findById(id).get());
+        return mapToUserResponse(usersRepository.findById(id).get());
     }
 
     @Override
@@ -70,12 +71,12 @@ public class UserServiceImpl implements UserService {
         }
         user.setUser_roles(user_roles);
 
-        return userMapper.toUserResponse(usersRepository.save(user));
+        return mapToUserResponse(usersRepository.save(user));
     }
 
     @Override
     public Page<UserResponse> getUsers(Pageable pageable) {
-        return usersRepository.findAll(pageable).map(userMapper::toUserResponse);
+        return usersRepository.findAll(pageable).map(this::mapToUserResponse);
     }
 
     public UserResponse getMyInfo(){
@@ -84,10 +85,11 @@ public class UserServiceImpl implements UserService {
 
         Users user = usersRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_EXISTED));
 
-        return userMapper.toUserResponse(user);
+        return mapToUserResponse(user);
     }
 
     @Override
+    @Transactional
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
         Users user = usersRepository.findById(userId).get();
         userMapper.updateUser(user, request);
@@ -96,10 +98,13 @@ public class UserServiceImpl implements UserService {
         Set<User_Role> user_roles = user.getUser_roles();
 
         List<String> roleNameRq = request.getRoles().stream().toList();
+
+        //List<String> -> Set<User_Role>
         Set<User_Role> user_rolesRq = new HashSet<>();
         for(int i=0;i<roleNameRq.size();i++){
             User_Role ur =
                     userRoleRepository.findByUser_IdAndRole_Id(user.getId(),roleRepository.findByRoleName(roleNameRq.get(i)).getId());
+            //nếu role chưa có thì thêm mới vào bảng User_Role , có rồi thì
             if(ur == null)
                 user_rolesRq.add(new User_Role(user,roleRepository.findByRoleName(roleNameRq.get(i))));
             else {
@@ -108,14 +113,25 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        userRoleRepository.deleteAll(user_roles);
+        user_roles.forEach(userRole -> userRoleRepository.deleteById(userRole.getId()));
 
         user.setUser_roles(user_rolesRq);
-        return userMapper.toUserResponse(usersRepository.saveAndFlush(user));
+
+        return mapToUserResponse(usersRepository.saveAndFlush(user));
     }
 
     @Override
     public void deleteUser(String userId) {
         usersRepository.deleteById(userId);
+    }
+
+
+    private UserResponse mapToUserResponse(Users user){
+        // chuyển Set<User_Role> -> Set<String> để map vào UserResponse
+        UserResponse userResponse =  userMapper.toUserResponse(user);
+        Set<String> roles = new HashSet<>();
+        user.getUser_roles().forEach(userRole -> roles.add(userRole.getRole().getRoleName()));
+        userResponse.setRoles(roles);
+        return userResponse;
     }
 }

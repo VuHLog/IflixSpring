@@ -14,6 +14,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class UserCreationRequest {
+    private String fullName;
+
     private String username;
 
     private String password;

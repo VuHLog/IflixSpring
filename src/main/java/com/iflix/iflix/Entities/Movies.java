@@ -70,6 +70,10 @@ public class Movies {
     @JoinColumn(name = "favorite_id")
     private Favorites favorite;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private  Categories categories;
+
     @ManyToMany
     @JoinTable(
             name = "movie_genre",

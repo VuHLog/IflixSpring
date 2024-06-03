@@ -10,7 +10,6 @@ import java.util.Set;
 
 @Repository
 public interface UserRoleRepository extends JpaRepository<User_Role, String> {
-    User_Role findByRole(Role role);
 
     User_Role findByUser_IdAndRole_Id(String user_id, String role_id);
 

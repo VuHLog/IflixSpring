@@ -21,6 +21,9 @@ public class Users {
     private String id;
 
     @Column
+    private String fullName;
+
+    @Column
     private String username;
 
     @Column

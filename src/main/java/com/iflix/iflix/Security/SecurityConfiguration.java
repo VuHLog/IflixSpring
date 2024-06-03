@@ -41,9 +41,11 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated()
         );
 
-        //validate token
+        //Cấu hình xử lý token OAuth2
         httpSecurity.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
+                oauth2.jwt(
+                        //giải mã token và xác minh tính hợp lệ của token
+                        jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
 
                         //chuyen doi JWT thanh Authentication -> thiet lap SecurityContextHolder cho Spring
                         .jwtAuthenticationConverter(jwtAuthenticationConverter())
@@ -60,6 +62,7 @@ public class SecurityConfiguration {
 
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
+        //chuyển đổi các quyền từ token thành các đối tượng GrantedAuthority của Spring Security
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
 

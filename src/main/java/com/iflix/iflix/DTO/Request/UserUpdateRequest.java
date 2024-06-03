@@ -14,6 +14,9 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class UserUpdateRequest {
+    private String fullName;
+
+
     private String password;
 
     private String email;
