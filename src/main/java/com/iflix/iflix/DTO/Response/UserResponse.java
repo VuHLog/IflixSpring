@@ -26,5 +26,7 @@ public class UserResponse {
 
     private String phone;
 
+    private String avatarUrl;
+
     private Set<String> roles;
 }

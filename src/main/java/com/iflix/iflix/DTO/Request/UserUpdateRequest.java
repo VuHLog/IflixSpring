@@ -23,5 +23,7 @@ public class UserUpdateRequest {
 
     private String phone;
 
+    private String avatarUrl;
+
     private Set<String> roles;
 }
