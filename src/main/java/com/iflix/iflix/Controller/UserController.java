@@ -32,8 +32,8 @@ public class UserController {
     @GetMapping("")
     public Page<UserResponse> getUsers(
             @RequestParam(name = "field", required = false, defaultValue = "id") String field,
-            @RequestParam(name = "page", required = false, defaultValue = "0") Integer pageNumber,
-            @RequestParam(name = "size", required = false, defaultValue = "5") Integer pageSize,
+            @RequestParam(name = "pageNumber", required = false, defaultValue = "0") Integer pageNumber,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "5") Integer pageSize,
             @RequestParam(name = "sort", required = false, defaultValue = "ASC") String sort
     ){
 

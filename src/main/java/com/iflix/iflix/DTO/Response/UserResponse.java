@@ -14,6 +14,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class UserResponse {
+    private String id;
+
     private String fullName;
 
     private String username;
