@@ -45,7 +45,8 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    @PreAuthorize("returnObject.username == authentication.name")
+//    @PreAuthorize("returnObject.username == authentication.name")
+//    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getById(String id) {
         return mapToUserResponse(usersRepository.findById(id).get());
     }
