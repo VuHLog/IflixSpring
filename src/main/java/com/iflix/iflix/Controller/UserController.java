@@ -34,13 +34,14 @@ public class UserController {
             @RequestParam(name = "field", required = false, defaultValue = "id") String field,
             @RequestParam(name = "pageNumber", required = false, defaultValue = "0") Integer pageNumber,
             @RequestParam(name = "pageSize", required = false, defaultValue = "5") Integer pageSize,
-            @RequestParam(name = "sort", required = false, defaultValue = "ASC") String sort
+            @RequestParam(name = "sort", required = false, defaultValue = "ASC") String sort,
+            @RequestParam(name = "search", required = false, defaultValue = "") String search
     ){
 
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        log.info("username: {}",authentication.getName());
-        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+//        var authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        log.info("username: {}",authentication.getName());
+//        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
 
         Sort sortable = null;
         if(sort.toUpperCase().equals("ASC")){
@@ -51,7 +52,10 @@ public class UserController {
         }
 
         Pageable pageable = PageRequest.of(pageNumber,pageSize,sortable);
-        Page<UserResponse> users = userService.getUsers(pageable);
+        Page<UserResponse> users = null;
+        if(!search.trim().equals("")){
+            users = userService.getUsersContains(search,pageable);
+        }else users = userService.getUsers(pageable);
         return users;
     }
 

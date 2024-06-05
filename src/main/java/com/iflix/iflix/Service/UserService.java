@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface UserService {
     public Page<UserResponse> getUsers(Pageable pageable);
+
+    public Page<UserResponse> getUsersContains(String s,Pageable pageable);
     public UserResponse getById(String id);
 
     public UserResponse addUser(UserCreationRequest request);

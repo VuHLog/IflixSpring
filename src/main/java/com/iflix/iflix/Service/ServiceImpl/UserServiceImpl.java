@@ -80,6 +80,11 @@ public class UserServiceImpl implements UserService {
         return usersRepository.findAll(pageable).map(this::mapToUserResponse);
     }
 
+    @Override
+    public Page<UserResponse> getUsersContains(String s, Pageable pageable) {
+        return usersRepository.findByUsernameContainsIgnoreCase(s, pageable).map(this::mapToUserResponse);
+    }
+
     public UserResponse getMyInfo(){
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();

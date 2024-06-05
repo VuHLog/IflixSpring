@@ -98,10 +98,6 @@ public class Movies {
     @JoinColumn(name = "director_id")
     private Directors director;
 
-    @ManyToOne
-    @JoinColumn(name = "actor_id")
-    private Actors actor;
-
     @OneToOne(mappedBy = "movie")
     private Rates rate;
 }

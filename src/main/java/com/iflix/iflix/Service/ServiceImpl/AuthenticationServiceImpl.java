@@ -111,6 +111,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .jwtID(UUID.randomUUID().toString())  //token ID
 //                .claim("customClaim", "custom") //custom claim
                 .claim("scope", buildScope(user)) // để spring security biết role thì cần claim có scope trong jwt
+                .claim("name", user.getFullName())
                 .build();
 
         //tao payload
