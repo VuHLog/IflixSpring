@@ -26,5 +26,5 @@ public class UserCreationRequest {
 
     private String avatarUrl;
 
-    private Set<String> roles;
+    private Set<Role> roles;
 }

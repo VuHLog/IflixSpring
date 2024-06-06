@@ -17,7 +17,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,7 +47,7 @@ public class UserServiceImpl implements UserService {
 //    @PreAuthorize("returnObject.username == authentication.name")
 //    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getById(String id) {
-        return mapToUserResponse(usersRepository.findById(id).get());
+        return userMapper.toUserResponse(usersRepository.findById(id).get());
     }
 
     @Override
@@ -68,21 +67,21 @@ public class UserServiceImpl implements UserService {
             user_role.setUser(user);
             user_roles.add(user_role);
         }else {
-            request.getRoles().stream().forEach(s -> user_roles.add(new User_Role(user,roleRepository.findByRoleName(s))));
+            request.getRoles().stream().forEach(s -> user_roles.add(new User_Role(user,s)));
         }
         user.setUser_roles(user_roles);
 
-        return mapToUserResponse(usersRepository.save(user));
+        return userMapper.toUserResponse(usersRepository.save(user));
     }
 
     @Override
     public Page<UserResponse> getUsers(Pageable pageable) {
-        return usersRepository.findAll(pageable).map(this::mapToUserResponse);
+        return usersRepository.findAll(pageable).map(userMapper::toUserResponse);
     }
 
     @Override
     public Page<UserResponse> getUsersContains(String s, Pageable pageable) {
-        return usersRepository.findByUsernameContainsIgnoreCase(s, pageable).map(this::mapToUserResponse);
+        return usersRepository.findByUsernameContainsIgnoreCase(s, pageable).map(userMapper::toUserResponse);
     }
 
     public UserResponse getMyInfo(){
@@ -91,7 +90,7 @@ public class UserServiceImpl implements UserService {
 
         Users user = usersRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_EXISTED));
 
-        return mapToUserResponse(user);
+        return userMapper.toUserResponse(user);
     }
 
     @Override
@@ -101,29 +100,18 @@ public class UserServiceImpl implements UserService {
         userMapper.updateUser(user, request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        Set<User_Role> user_roles = user.getUser_roles();
+        // xoá user id trong user_role
+        userRoleRepository.deleteByUser(user);
 
-        List<String> roleNameRq = request.getRoles().stream().toList();
-
-        //List<String> -> Set<User_Role>
-        Set<User_Role> user_rolesRq = new HashSet<>();
-        for(int i=0;i<roleNameRq.size();i++){
-            User_Role ur =
-                    userRoleRepository.findByUser_IdAndRole_Id(user.getId(),roleRepository.findByRoleName(roleNameRq.get(i)).getId());
-            //nếu role chưa có thì thêm mới vào bảng User_Role , có rồi thì
-            if(ur == null)
-                user_rolesRq.add(new User_Role(user,roleRepository.findByRoleName(roleNameRq.get(i))));
-            else {
-                user_roles.remove(ur);
-                user_rolesRq.add(ur);
-            }
+        Set<User_Role> user_roles = new HashSet<>();
+        List<Role> rolesRequest = request.getRoles().stream().toList();
+        for(int i=0; i<rolesRequest.size();i++){
+            user_roles.add(new User_Role(user,rolesRequest.get(i)));
         }
 
-        user_roles.forEach(userRole -> userRoleRepository.deleteById(userRole.getId()));
+        user.setUser_roles(user_roles);
 
-        user.setUser_roles(user_rolesRq);
-
-        return mapToUserResponse(usersRepository.saveAndFlush(user));
+        return userMapper.toUserResponse(usersRepository.saveAndFlush(user));
     }
 
     @Override
@@ -137,7 +125,7 @@ public class UserServiceImpl implements UserService {
         UserResponse userResponse =  userMapper.toUserResponse(user);
         Set<String> roles = new HashSet<>();
         user.getUser_roles().forEach(userRole -> roles.add(userRole.getRole().getRoleName()));
-        userResponse.setRoles(roles);
+//        userResponse.setRoles(roles);
         return userResponse;
     }
 }

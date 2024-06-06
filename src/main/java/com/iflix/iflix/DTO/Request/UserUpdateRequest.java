@@ -25,5 +25,5 @@ public class UserUpdateRequest {
 
     private String avatarUrl;
 
-    private Set<String> roles;
+    private Set<Role> roles;
 }

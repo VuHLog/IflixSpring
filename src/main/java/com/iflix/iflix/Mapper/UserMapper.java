@@ -13,7 +13,6 @@ public interface UserMapper {
     @Mapping(target = "user_roles",ignore = true)
     Users toUser(UserCreationRequest request);
 
-    @Mapping(target = "roles",ignore = true)
     UserResponse toUserResponse(Users user);
 
     @Mapping(target = "user_roles", ignore = true)
