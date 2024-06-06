@@ -6,12 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
 
-//luu phim
+//phim
 @Getter
 @Setter
 @AllArgsConstructor
@@ -39,8 +38,8 @@ public class Movies {
     @Column
     private int episodeCurrent;
 
-    @Column
-    private int epsisodeTotal;
+//    @Column
+//    private int episodeTotal;
 
     @Column
     private String status;
@@ -54,11 +53,6 @@ public class Movies {
     @Column
     private int numView;
 
-
-    @Transient
-    @JsonIgnore
-    private MultipartFile filmImage;
-
     @Column
     private String imageUrl;
 
@@ -66,38 +60,38 @@ public class Movies {
     @JsonIgnore
     private List<Comments> comments;
 
-    @ManyToOne
-    @JoinColumn(name = "favorite_id")
-    private Favorites favorite;
+    @OneToMany(mappedBy = "movie")
+    @JsonIgnore
+    private List<Episode> episodes;
+
+    @OneToMany(mappedBy = "movie")
+    @JsonIgnore
+    private List<Favorites> favorites;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private  Categories categories;
+    @JsonIgnore
+    private Categories categories;
 
-    @ManyToMany
-    @JoinTable(
-            name = "movie_genre",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id")
-    )
-    private Set<Genres> genres;
+    @OneToMany(mappedBy = "movie",cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @JsonIgnore
+    private Set<Movie_Genre> movie_genres;
 
     @ManyToOne
     @JoinColumn(name = "country_id")
+    @JsonIgnore
     private  Countries country;
 
-    @ManyToMany
-    @JoinTable(
-            name = "movie_actor",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "actor_id")
-    )
-    private Set<Actors> actors;
+    @OneToMany(mappedBy = "movie",cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @JsonIgnore
+    private Set<Movie_Actor> movie_actors;
 
     @ManyToOne
     @JoinColumn(name = "director_id")
+    @JsonIgnore
     private Directors director;
 
     @OneToOne(mappedBy = "movie")
+    @JsonIgnore
     private Rates rate;
 }

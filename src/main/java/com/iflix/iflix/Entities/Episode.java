@@ -7,25 +7,32 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
-//luu thong tin dien vien
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "actors")
-public class Actors {
+@Table(name = "episode")
+public class Episode {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column
     private String id;
 
     @Column
-    private String name;
+    private String link;
 
-    @OneToMany(mappedBy = "actor",cascade = {CascadeType.ALL})
-    @JsonIgnore
-    private Set<Movie_Actor> movie_actors;
+    @Column
+    private int episodeNumber;
+
+    @Column
+    private String linkServer;
+
+    @ManyToOne
+    @JoinColumn(name = "movie_id")
+    private Movies movie;
+
 }

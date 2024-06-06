@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface CountriesRepository extends JpaRepository<Countries, String> {
     boolean existsByName(String name);
 
-    Optional<Countries> findByName(String name);
+    Countries findByName(String name);
 
     Page<Countries> findByNameContainsIgnoreCase(String name, Pageable pageable);
 }

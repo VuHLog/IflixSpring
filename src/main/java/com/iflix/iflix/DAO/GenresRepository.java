@@ -11,7 +11,7 @@ public interface GenresRepository extends JpaRepository<Genres, String> {
 
     boolean existsByName(String name);
 
-    Optional<Genres> findByName(String name);
+    Genres findByName(String name);
 
     Page<Genres> findByNameContainsIgnoreCase(String name, Pageable pageable);
 }

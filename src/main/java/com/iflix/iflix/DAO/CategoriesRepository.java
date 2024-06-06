@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface CategoriesRepository extends JpaRepository<Categories, String> {
     boolean existsByName(String name);
 
-    Optional<Categories> findByName(String name);
+    Categories findByName(String name);
 
     Page<Categories> findByNameContainsIgnoreCase(String name, Pageable pageable);
 }

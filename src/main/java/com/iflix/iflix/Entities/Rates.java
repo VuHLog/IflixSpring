@@ -19,7 +19,7 @@ public class Rates {
     private String id;
 
     @Column
-    private int rate;
+    private double rate;
 
     @OneToOne
     @JoinColumn(name = "movie_id")

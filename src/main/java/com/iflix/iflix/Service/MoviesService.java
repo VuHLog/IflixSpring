@@ -1,16 +1,20 @@
 package com.iflix.iflix.Service;
 
+import com.iflix.iflix.DTO.Request.MoviesRequest;
+import com.iflix.iflix.DTO.Response.MoviesResponse;
 import com.iflix.iflix.Entities.Movies;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface MoviesService {
-    public Movies getById(String id);
-    public Movies addMovie(Movies movie);
+    public Page<MoviesResponse> getMovies(Pageable pageable);
 
-    public Movies updateMovie(Movies movie);
+    public Page<MoviesResponse> getMoviesContains(String s,Pageable pageable);
+    public MoviesResponse getById(String id);
 
-    public void deleteMovie(Movies movie);
+    public MoviesResponse addMovie(MoviesRequest request);
 
-    public Page<Movies> findMovies(Pageable pageable);
+    public MoviesResponse updateMovie(String moviesId, MoviesRequest request);
+
+    public void deleteMovie(String moviesId);
 }

@@ -22,9 +22,9 @@ public class Favorites {
     @Column
     private String id;
 
-    @OneToMany(mappedBy = "favorite")
-    @JsonIgnore
-    private Set<Movies> movies;
+    @ManyToOne
+    @JoinColumn(name = "movie_id")
+    private Movies movie;
 
     @OneToOne
     @JoinColumn(name = "user_id")

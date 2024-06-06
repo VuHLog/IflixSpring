@@ -1,12 +1,11 @@
 package com.iflix.iflix.Service;
 
-import com.iflix.iflix.Entities.Actors;
+import com.iflix.iflix.DTO.Response.ActorsResponse;
+
+import java.util.List;
 
 public interface ActorsService {
-    public Actors findById(String id);
-    public Actors addActor(Actors actor);
+    public List<ActorsResponse> getActors();
 
-    public Actors updateActor(Actors actor);
-
-    public void deleteBook(Actors actor);
+    public ActorsResponse getById(String id);
 }

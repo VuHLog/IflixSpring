@@ -1,5 +1,6 @@
 package com.iflix.iflix.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,6 +28,7 @@ public class Genres {
     @Column
     private String slug;
 
-    @ManyToMany(mappedBy = "genres" )
-    private Set<Movies> movies;
+    @OneToMany(mappedBy = "genre",cascade = {CascadeType.ALL})
+    @JsonIgnore
+    private Set<Movie_Genre> movie_genres;
 }

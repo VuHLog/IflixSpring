@@ -1,5 +1,6 @@
 package com.iflix.iflix.DAO;
 
+import com.iflix.iflix.Entities.Countries;
 import com.iflix.iflix.Entities.Rates;
 import org.springframework.data.jpa.repository.JpaRepository;
 
