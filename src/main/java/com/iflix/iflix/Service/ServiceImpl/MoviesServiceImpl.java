@@ -112,9 +112,8 @@ public class MoviesServiceImpl implements MoviesService {
     @Override
     @Transactional
     public void deleteMovie(String movieId) {
-        Movies movie = moviesRepository.findById(movieId).get();
-        movieGenreRepository.deleteById(movieId);
-        movieActorRepository.deleteById(movieId);
+        movieGenreRepository.deleteByMovieId(movieId);
+        movieActorRepository.deleteByMovieId(movieId);
         moviesRepository.deleteById(movieId);
     }
 }

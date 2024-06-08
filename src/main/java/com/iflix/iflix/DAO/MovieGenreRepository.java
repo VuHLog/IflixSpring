@@ -15,5 +15,7 @@ public interface MovieGenreRepository extends JpaRepository<Movie_Genre, String>
     @Query("DELETE FROM Movie_Genre ur WHERE ur.movie = :movie")
     void deleteByMovie(Movies movie);
 
-
+    @Modifying
+    @Query(value = "DELETE mg from movie_genre as mg where mg.movie_id = :movieId",nativeQuery = true)
+    void deleteByMovieId(String movieId);
 }

@@ -1,5 +1,6 @@
 package com.iflix.iflix.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,5 +29,6 @@ public class Categories {
     private String slug;
 
     @OneToMany(mappedBy = "categories" )
+    @JsonIgnore
     private Set<Movies> movies;
 }

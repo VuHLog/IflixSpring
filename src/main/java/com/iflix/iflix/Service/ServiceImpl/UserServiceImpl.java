@@ -115,17 +115,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(String userId) {
+        userRoleRepository.deleteByUserId(userId);
         usersRepository.deleteById(userId);
-    }
-
-
-    private UserResponse mapToUserResponse(Users user){
-        // chuyển Set<User_Role> -> Set<String> để map vào UserResponse
-        UserResponse userResponse =  userMapper.toUserResponse(user);
-        Set<String> roles = new HashSet<>();
-        user.getUser_roles().forEach(userRole -> roles.add(userRole.getRole().getRoleName()));
-//        userResponse.setRoles(roles);
-        return userResponse;
     }
 }

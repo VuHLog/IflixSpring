@@ -19,5 +19,7 @@ public interface UserRoleRepository extends JpaRepository<User_Role, String> {
     @Query("DELETE FROM User_Role ur WHERE ur.user = :user")
     void deleteByUser(Users user);
 
-
+    @Modifying
+    @Query(value = "DELETE ur from user_role as ur where ur.user_id = :userId",nativeQuery = true)
+    void deleteByUserId(String userId);
 }
