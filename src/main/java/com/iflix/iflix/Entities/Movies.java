@@ -36,10 +36,10 @@ public class Movies {
     private int duration;
 
     @Column
-    private int episodeCurrent;
+    private int episodeTotal;
 
-//    @Column
-//    private int episodeTotal;
+    @Column
+    private int episodeCurrent;
 
     @Column
     private String status;
@@ -62,7 +62,7 @@ public class Movies {
 
     @OneToMany(mappedBy = "movie")
     @JsonIgnore
-    private List<Episode> episodes;
+    private List<Episodes> episodes;
 
     @OneToMany(mappedBy = "movie")
     @JsonIgnore

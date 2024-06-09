@@ -1,22 +1,18 @@
 package com.iflix.iflix.Entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-import java.util.Set;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "episode")
-public class Episode {
+@Table(name = "episodes")
+public class Episodes {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column

@@ -25,9 +25,9 @@ public class MoviesRequest {
 
     private int duration;
 
-    private int episodeCurrent;
+    private int episodeTotal;
 
-//    private int episodeTotal;
+    private int episodeCurrent;
 
     private String status;
 
