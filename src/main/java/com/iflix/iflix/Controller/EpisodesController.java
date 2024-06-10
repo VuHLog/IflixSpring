@@ -12,7 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/episodes")
+@RequestMapping("/api/episodes")
 public class EpisodesController {
     @Autowired
     private EpisodesService episodesService;

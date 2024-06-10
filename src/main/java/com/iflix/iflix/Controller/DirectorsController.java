@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/directors")
+@RequestMapping("/api/directors")
 @Slf4j
 public class DirectorsController {
     @Autowired

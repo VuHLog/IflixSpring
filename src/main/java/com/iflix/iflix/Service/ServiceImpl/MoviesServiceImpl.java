@@ -54,6 +54,11 @@ public class MoviesServiceImpl implements MoviesService {
     }
 
     @Override
+    public List<MoviesResponse> getTop5Trending() {
+        return moviesRepository.findDistinctTop5ByNumView().stream().map(moviesMapper::toMovieResponse).toList();
+    }
+
+    @Override
     public Page<MoviesResponse> getMovies(Pageable pageable) {
         return moviesRepository.findAll(pageable).map(moviesMapper::toMovieResponse);
     }

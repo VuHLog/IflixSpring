@@ -13,7 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/genres")
+@RequestMapping("/api/genres")
 @Slf4j
 public class GenresController {
     @Autowired

@@ -13,7 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/countries")
+@RequestMapping("/api/countries")
 @Slf4j
 public class CountriesController {
     @Autowired

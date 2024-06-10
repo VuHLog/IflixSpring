@@ -11,8 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/admin/movies")
+@RequestMapping("/api/movies")
 public class MoviesController {
     @Autowired
     private MoviesService moviesService;
@@ -27,7 +29,7 @@ public class MoviesController {
 
     @GetMapping("")
     public Page<MoviesResponse> getMovies(
-            @RequestParam(name = "field", required = false, defaultValue = "id") String field,
+            @RequestParam(name = "field", required = false, defaultValue = "name") String field,
             @RequestParam(name = "pageNumber", required = false, defaultValue = "0") Integer pageNumber,
             @RequestParam(name = "pageSize", required = false, defaultValue = "5") Integer pageSize,
             @RequestParam(name = "sort", required = false, defaultValue = "ASC") String sort,
@@ -54,6 +56,13 @@ public class MoviesController {
     public ApiResponse<MoviesResponse> getMovie(@PathVariable String movieId){
         return ApiResponse.<MoviesResponse>builder()
                 .result(moviesService.getById(movieId))
+                .build();
+    }
+
+    @GetMapping("/trending")
+    public ApiResponse<List<MoviesResponse>> getMovieTrending(){
+        return ApiResponse.<List<MoviesResponse>>builder()
+                .result(moviesService.getTop5Trending())
                 .build();
     }
 

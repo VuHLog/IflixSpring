@@ -112,6 +112,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 //                .claim("customClaim", "custom") //custom claim
                 .claim("scope", buildScope(user)) // để spring security biết role thì cần claim có scope trong jwt
                 .claim("name", user.getFullName())
+                .claim("avatarUrl", user.getAvatarUrl())
                 .build();
 
         //tao payload
