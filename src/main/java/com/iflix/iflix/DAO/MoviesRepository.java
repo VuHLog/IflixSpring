@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,18 @@ public interface MoviesRepository extends JpaRepository<Movies, String> {
 
     Page<Movies> findByNameContainsIgnoreCase(String name, Pageable pageable);
 
-    @Query(value = "select top 5 * from movies as m order by num_view desc ",nativeQuery = true)
-    List<Movies> findDistinctTop5ByNumView();
+    @Query(value = "select * from movies as m order by num_view desc OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY",nativeQuery = true)
+    List<Movies> findDistinctTopByNumView(@Param("top") int top);
+
+    @Query(value = "select m.*, c.name as category_name from movies as m join categories as c on m.category_id = c.id where c.name = N'Phim Bộ' order by modified_time desc OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY",nativeQuery = true)
+    List<Movies> findTopByNewDrama(int top);
+
+    @Query(value = "select m.*, c.name as category_name from movies as m join categories as c on m.category_id = c.id where c.name = N'Phim Lẻ' order by modified_time desc OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY",nativeQuery = true)
+    List<Movies> findTopByNewSingleMovie(int top);
+
+    @Query(value = "select * from movies as m\n" +
+            "where m.status= N'Sắp chiếu'\n" +
+            "order by created_time desc\n" +
+            "OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY",nativeQuery = true)
+    List<Movies> findByMovieAboutToShow(int top);
 }

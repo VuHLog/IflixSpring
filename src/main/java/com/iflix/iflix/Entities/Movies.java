@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
 
@@ -46,6 +47,12 @@ public class Movies {
 
     @Column
     private String lang;
+
+    @Column(name = "created_time")
+    private Timestamp createdTime;
+
+    @Column(name = "modified_time")
+    private Timestamp modifiedTime;
 
     @Column
     private int releaseYear;

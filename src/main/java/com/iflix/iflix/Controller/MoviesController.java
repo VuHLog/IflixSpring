@@ -19,14 +19,6 @@ public class MoviesController {
     @Autowired
     private MoviesService moviesService;
 
-    @PostMapping("")
-    public ApiResponse<MoviesResponse> createMovie(@RequestBody MoviesRequest request){
-
-        return ApiResponse.<MoviesResponse>builder()
-                .result(moviesService.addMovie(request))
-                .build();
-    }
-
     @GetMapping("")
     public Page<MoviesResponse> getMovies(
             @RequestParam(name = "field", required = false, defaultValue = "name") String field,
@@ -52,6 +44,7 @@ public class MoviesController {
         return movies;
     }
 
+
     @GetMapping("/{movieId}")
     public ApiResponse<MoviesResponse> getMovie(@PathVariable String movieId){
         return ApiResponse.<MoviesResponse>builder()
@@ -60,12 +53,49 @@ public class MoviesController {
     }
 
     @GetMapping("/trending")
-    public ApiResponse<List<MoviesResponse>> getMovieTrending(){
+    public ApiResponse<List<MoviesResponse>> getMovieTrending(@RequestParam(name = "top", required = false, defaultValue = "5") int top){
         return ApiResponse.<List<MoviesResponse>>builder()
-                .result(moviesService.getTop5Trending())
+                .result(moviesService.getTopTrending(top))
                 .build();
     }
 
+    @GetMapping("/topViews")
+    public ApiResponse<List<MoviesResponse>> getTopViews(@RequestParam(name = "top", required = false, defaultValue = "10") int top){
+        return ApiResponse.<List<MoviesResponse>>builder()
+                .result(moviesService.getTopViews(top))
+                .build();
+    }
+
+    @GetMapping("/TopNewDrama")
+    public ApiResponse<List<MoviesResponse>> getTopMovieByNewDrama(@RequestParam(name = "top", required = false, defaultValue = "16") int top){
+        return ApiResponse.<List<MoviesResponse>>builder()
+                .result(moviesService.getTopNewDrama(top))
+                .build();
+    }
+
+    @GetMapping("/TopNewSingleMovie")
+    public ApiResponse<List<MoviesResponse>> getTopMovieByNewSingleMovie(@RequestParam(name = "top", required = false, defaultValue = "16") int top){
+        return ApiResponse.<List<MoviesResponse>>builder()
+                .result(moviesService.getTopNewSingleMovie(top))
+                .build();
+    }
+
+    @GetMapping("/MoviesAboutToShow")
+    public ApiResponse<List<MoviesResponse>> getMoviesAboutToShow(@RequestParam(name = "top", required = false, defaultValue = "5") int top){
+        return ApiResponse.<List<MoviesResponse>>builder()
+                .result(moviesService.getMoviesAboutToShow(top))
+                .build();
+    }
+
+
+
+    @PostMapping("")
+    public ApiResponse<MoviesResponse> createMovie(@RequestBody MoviesRequest request){
+
+        return ApiResponse.<MoviesResponse>builder()
+                .result(moviesService.addMovie(request))
+                .build();
+    }
     @PutMapping("/{movieId}")
     public ApiResponse<MoviesResponse> updateMovie(@PathVariable String movieId,@RequestBody MoviesRequest request){
         return ApiResponse.<MoviesResponse>builder()

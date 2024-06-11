@@ -12,6 +12,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +50,9 @@ public class MoviesServiceImpl implements MoviesService {
     private RatesRepository ratesRepository;
 
     @Autowired
+    private EpisodesRepository episodesRepository;
+
+    @Autowired
     private MoviesMapper moviesMapper;
 
     @Override
@@ -54,8 +61,28 @@ public class MoviesServiceImpl implements MoviesService {
     }
 
     @Override
-    public List<MoviesResponse> getTop5Trending() {
-        return moviesRepository.findDistinctTop5ByNumView().stream().map(moviesMapper::toMovieResponse).toList();
+    public List<MoviesResponse> getTopTrending(int top) {
+        return moviesRepository.findDistinctTopByNumView(top).stream().map(moviesMapper::toMovieResponse).toList();
+    }
+
+    @Override
+    public List<MoviesResponse> getTopViews(int top) {
+        return moviesRepository.findDistinctTopByNumView(top).stream().map(moviesMapper::toMovieResponse).toList();
+    }
+
+    @Override
+    public List<MoviesResponse> getMoviesAboutToShow(int top) {
+        return moviesRepository.findByMovieAboutToShow(top).stream().map(moviesMapper::toMovieResponse).toList();
+    }
+
+    @Override
+    public List<MoviesResponse> getTopNewDrama(int top) {
+        return moviesRepository.findTopByNewDrama(top).stream().map(moviesMapper::toMovieResponse).toList();
+    }
+
+    @Override
+    public List<MoviesResponse> getTopNewSingleMovie(int top) {
+        return moviesRepository.findTopByNewSingleMovie(top).stream().map(moviesMapper::toMovieResponse).toList();
     }
 
     @Override
@@ -71,6 +98,12 @@ public class MoviesServiceImpl implements MoviesService {
     @Override
     public MoviesResponse addMovie(MoviesRequest request) {
         Movies movie = moviesMapper.toMovie(request);
+
+        LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.now());
+        // Chuyển đổi LocalDateTime sang Timestamp
+        Timestamp timestamp = Timestamp.valueOf(localDateTime);
+        movie.setCreatedTime(timestamp);
+        movie.setModifiedTime(timestamp);
 
         //xu ly genres request
         Set<Movie_Genre> movie_genres = new HashSet<>();
@@ -119,6 +152,7 @@ public class MoviesServiceImpl implements MoviesService {
     public void deleteMovie(String movieId) {
         movieGenreRepository.deleteByMovieId(movieId);
         movieActorRepository.deleteByMovieId(movieId);
+        episodesRepository.deleteByMovieId(movieId);
         moviesRepository.deleteById(movieId);
     }
 }

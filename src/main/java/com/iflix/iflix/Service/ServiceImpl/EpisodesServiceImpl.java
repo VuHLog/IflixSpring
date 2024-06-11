@@ -5,6 +5,7 @@ import com.iflix.iflix.DAO.MoviesRepository;
 import com.iflix.iflix.DTO.Request.EpisodesRequest;
 import com.iflix.iflix.DTO.Response.EpisodesResponse;
 import com.iflix.iflix.Entities.Episodes;
+import com.iflix.iflix.Entities.Movies;
 import com.iflix.iflix.Mapper.EpisodesMapper;
 import com.iflix.iflix.Service.EpisodesService;
 import jakarta.transaction.Transactional;
@@ -12,6 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Service
 public class EpisodesServiceImpl implements EpisodesService {
@@ -26,6 +32,7 @@ public class EpisodesServiceImpl implements EpisodesService {
 
     @Override
     public EpisodesResponse getById(String id) {
+        EpisodesResponse e = episodesMapper.toEpisodeResponse(episodesRepository.findById(id).get());
         return episodesMapper.toEpisodeResponse(episodesRepository.findById(id).get());
     }
 
@@ -42,6 +49,14 @@ public class EpisodesServiceImpl implements EpisodesService {
     @Override
     public EpisodesResponse addEpisode(EpisodesRequest request) {
         Episodes episode = episodesMapper.toEpisode(request);
+
+        Movies movie = moviesRepository.findById(request.getMovie().getId()).get();
+        LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.now());
+        // Chuyển đổi LocalDateTime sang Timestamp
+        Timestamp timestamp = Timestamp.valueOf(localDateTime);
+        movie.setModifiedTime(timestamp);
+        episode.setMovie(movie);
+
         return episodesMapper.toEpisodeResponse(episodesRepository.save(episode));
     }
 
@@ -50,6 +65,13 @@ public class EpisodesServiceImpl implements EpisodesService {
     public EpisodesResponse updateEpisode(String episodeId, EpisodesRequest request) {
         Episodes episode = episodesRepository.findById(episodeId).get();
         episodesMapper.updateEpisode(episode, request);
+
+        Movies movie = moviesRepository.findById(request.getMovie().getId()).get();
+        LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.now());
+        // Chuyển đổi LocalDateTime sang Timestamp
+        Timestamp timestamp = Timestamp.valueOf(localDateTime);
+        movie.setModifiedTime(timestamp);
+        episode.setMovie(movie);
 
         return episodesMapper.toEpisodeResponse(episodesRepository.saveAndFlush(episode));
     }

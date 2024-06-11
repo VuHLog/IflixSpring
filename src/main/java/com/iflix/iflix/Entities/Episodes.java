@@ -27,7 +27,7 @@ public class Episodes {
     @Column
     private String linkServer;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "movie_id")
     private Movies movie;
 
