@@ -20,18 +20,19 @@ public interface MoviesRepository extends JpaRepository<Movies, String> {
 
     Page<Movies> findByNameContainsIgnoreCase(String name, Pageable pageable);
 
-    @Query(value = "select * from movies as m order by num_view desc OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY",nativeQuery = true)
+    @Query(value = "select * from movies as m order by num_view desc OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY", nativeQuery = true)
     List<Movies> findDistinctTopByNumView(@Param("top") int top);
 
-    @Query(value = "select m.*, c.name as category_name from movies as m join categories as c on m.category_id = c.id where c.name = N'Phim Bộ' order by modified_time desc OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY",nativeQuery = true)
-    List<Movies> findTopByNewDrama(int top);
+    @Query(value = "select m.*, c.name as category_name from movies as m join categories as c on m.category_id = c.id where c.name = N'Phim Bộ' order by modified_time desc OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY", nativeQuery = true)
+    List<Movies> findTopByNewDrama(@Param("top") int top);
 
-    @Query(value = "select m.*, c.name as category_name from movies as m join categories as c on m.category_id = c.id where c.name = N'Phim Lẻ' order by modified_time desc OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY",nativeQuery = true)
-    List<Movies> findTopByNewSingleMovie(int top);
+    @Query(value = "select m.*, c.name as category_name from movies as m join categories as c on m.category_id = c.id where c.name = N'Phim Lẻ' order by modified_time desc OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY", nativeQuery = true)
+    List<Movies> findTopByNewSingleMovie(@Param("top") int top);
 
-    @Query(value = "select * from movies as m\n" +
-            "where m.status= N'Sắp chiếu'\n" +
-            "order by created_time desc\n" +
-            "OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY",nativeQuery = true)
-    List<Movies> findByMovieAboutToShow(int top);
+    @Query(value = "select * from movies as m\n" + "where m.status= N'Sắp chiếu'\n" + "order by created_time desc\n" + "OFFSET 0 ROWS FETCH FIRST :top ROWS ONLY", nativeQuery = true)
+    List<Movies> findByMovieAboutToShow(@Param("top") int top);
+
+    Movies findBySlug(String slug);
+
+
 }

@@ -98,7 +98,7 @@ public class Movies {
     @JsonIgnore
     private Directors director;
 
-    @OneToOne(mappedBy = "movie")
+    @OneToMany(mappedBy = "movie")
     @JsonIgnore
-    private Rates rate;
+    private List<Rates> rate;
 }

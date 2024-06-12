@@ -22,6 +22,9 @@ public class Episodes {
     private String link;
 
     @Column
+    private String slug;
+
+    @Column
     private int episodeNumber;
 
     @Column

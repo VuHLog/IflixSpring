@@ -61,6 +61,11 @@ public class MoviesServiceImpl implements MoviesService {
     }
 
     @Override
+    public MoviesResponse getBySlug(String slug) {
+        return moviesMapper.toMovieResponse(moviesRepository.findBySlug(slug));
+    }
+
+    @Override
     public List<MoviesResponse> getTopTrending(int top) {
         return moviesRepository.findDistinctTopByNumView(top).stream().map(moviesMapper::toMovieResponse).toList();
     }

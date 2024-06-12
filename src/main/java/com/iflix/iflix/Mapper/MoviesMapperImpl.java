@@ -73,7 +73,6 @@ public class MoviesMapperImpl implements MoviesMapper {
             moviesResponse.movie_actors( new LinkedHashSet<Movie_Actor>( set1 ) );
         }
         moviesResponse.director( movie.getDirector() );
-        moviesResponse.rate( movie.getRate() );
 
         return moviesResponse.build();
     }

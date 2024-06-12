@@ -15,6 +15,8 @@ import java.util.Set;
 public class EpisodesResponse {
     private String id;
 
+    private String slug;
+
     private String link;
 
     private int episodeNumber;

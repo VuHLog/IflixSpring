@@ -16,6 +16,8 @@ import java.util.Set;
 public class EpisodesRequest {
     private String link;
 
+    private String slug;
+
     private int episodeNumber;
 
     private String linkServer;

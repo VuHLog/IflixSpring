@@ -52,6 +52,13 @@ public class MoviesController {
                 .build();
     }
 
+    @GetMapping("/movieBySlug/{slug}")
+    public ApiResponse<MoviesResponse> getMovieBySlug(@PathVariable String slug){
+        return ApiResponse.<MoviesResponse>builder()
+                .result(moviesService.getBySlug("/"+slug))
+                .build();
+    }
+
     @GetMapping("/trending")
     public ApiResponse<List<MoviesResponse>> getMovieTrending(@RequestParam(name = "top", required = false, defaultValue = "5") int top){
         return ApiResponse.<List<MoviesResponse>>builder()

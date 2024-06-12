@@ -21,7 +21,7 @@ public class Rates {
     @Column
     private double rate;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "movie_id")
     private Movies movie;
 

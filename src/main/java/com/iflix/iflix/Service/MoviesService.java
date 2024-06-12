@@ -14,6 +14,8 @@ public interface MoviesService {
     public Page<MoviesResponse> getMoviesContains(String s,Pageable pageable);
     public MoviesResponse getById(String id);
 
+    public MoviesResponse getBySlug(String slug);
+
     public List<MoviesResponse> getTopTrending(int top);
 
     public List<MoviesResponse> getTopViews(int top);
