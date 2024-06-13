@@ -11,10 +11,15 @@ import java.util.List;
 public interface MoviesService {
     public Page<MoviesResponse> getMovies(Pageable pageable);
 
-    public Page<MoviesResponse> getMoviesContains(String s,Pageable pageable);
+    public Page<MoviesResponse> getMoviesByFilter(String field, Integer pageNumber, Integer pageSize, String name, String genre, String country, String category, Integer releaseYear);
+
+    public Page<MoviesResponse> getMoviesContains(String s, Pageable pageable);
+
     public MoviesResponse getById(String id);
 
     public MoviesResponse getBySlug(String slug);
+
+    public List<Integer> getAllYear();
 
     public List<MoviesResponse> getTopTrending(int top);
 

@@ -1,6 +1,7 @@
 package com.iflix.iflix.Service.ServiceImpl;
 
 import com.iflix.iflix.DAO.*;
+import com.iflix.iflix.DAO.Specification.MoviesSpecifications;
 import com.iflix.iflix.DTO.Request.MoviesRequest;
 import com.iflix.iflix.DTO.Response.MoviesResponse;
 import com.iflix.iflix.Entities.*;
@@ -9,7 +10,10 @@ import com.iflix.iflix.Service.MoviesService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -66,6 +70,11 @@ public class MoviesServiceImpl implements MoviesService {
     }
 
     @Override
+    public List<Integer> getAllYear() {
+        return moviesRepository.findAllYear();
+    }
+
+    @Override
     public List<MoviesResponse> getTopTrending(int top) {
         return moviesRepository.findDistinctTopByNumView(top).stream().map(moviesMapper::toMovieResponse).toList();
     }
@@ -98,6 +107,34 @@ public class MoviesServiceImpl implements MoviesService {
     @Override
     public Page<MoviesResponse> getMoviesContains(String s, Pageable pageable) {
         return moviesRepository.findByNameContainsIgnoreCase(s, pageable).map(moviesMapper::toMovieResponse);
+    }
+
+    @Override
+    public Page<MoviesResponse> getMoviesByFilter(String field,Integer pageNumber, Integer pageSize,String name, String genre, String country, String category, Integer releaseYear) {
+        Specification<Movies> specs = Specification.where(null);
+
+        if (name != null && !name.isEmpty()) {
+            specs = specs.and(MoviesSpecifications.hasNameLike(name));
+        }
+        if (genre != null && !genre.isEmpty()) {
+            specs = specs.and(MoviesSpecifications.hasGenre(genre));
+        }
+        if (country != null && !country.isEmpty()) {
+            specs = specs.and(MoviesSpecifications.hasCountry(country));
+        }
+        if (category != null && !category.isEmpty()) {
+            specs = specs.and(MoviesSpecifications.hasCategory(category));
+        }
+        if (releaseYear != null) {
+            specs = specs.and(MoviesSpecifications.hasReleaseYear(releaseYear));
+        }
+
+        Sort sortable = null;
+        sortable = Sort.by(field).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortable);
+
+        return moviesRepository.findAll(specs, pageable).map(moviesMapper::toMovieResponse);
     }
 
     @Override

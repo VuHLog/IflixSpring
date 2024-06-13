@@ -26,92 +26,111 @@ public class MoviesController {
             @RequestParam(name = "pageSize", required = false, defaultValue = "5") Integer pageSize,
             @RequestParam(name = "sort", required = false, defaultValue = "ASC") String sort,
             @RequestParam(name = "search", required = false, defaultValue = "") String search
-    ){
+    ) {
 
         Sort sortable = null;
-        if(sort.toUpperCase().equals("ASC")){
+        if (sort.toUpperCase().equals("ASC")) {
             sortable = Sort.by(field).ascending();
         }
-        if(sort.toUpperCase().equals("DESC")){
+        if (sort.toUpperCase().equals("DESC")) {
             sortable = Sort.by(field).descending();
         }
 
-        Pageable pageable = PageRequest.of(pageNumber,pageSize,sortable);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortable);
         Page<MoviesResponse> movies = null;
-        if(!search.trim().equals("")){
-            movies = moviesService.getMoviesContains(search,pageable);
-        }else movies = moviesService.getMovies(pageable);
+        if (!search.trim().equals("")) {
+            movies = moviesService.getMoviesContains(search, pageable);
+        } else movies = moviesService.getMovies(pageable);
         return movies;
+    }
+
+    @GetMapping("/filter")
+    public Page<MoviesResponse> getMoviesFiltered(
+            @RequestParam(name = "field", required = false, defaultValue = "modifiedTime") String field,
+            @RequestParam(name = "pageNumber", required = false, defaultValue = "0") Integer pageNumber,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "24") Integer pageSize,
+            @RequestParam(name = "name", required = false, defaultValue = "") String name,
+            @RequestParam(name = "genre", required = false, defaultValue = "") String genre,
+            @RequestParam(name = "country", required = false, defaultValue = "") String country,
+            @RequestParam(name = "category", required = false, defaultValue = "") String category,
+            @RequestParam(name = "year", required = false, defaultValue = "") Integer year
+            ) {
+        return moviesService.getMoviesByFilter(field,pageNumber,pageSize,name,genre,country,category,year);
     }
 
 
     @GetMapping("/{movieId}")
-    public ApiResponse<MoviesResponse> getMovie(@PathVariable String movieId){
+    public ApiResponse<MoviesResponse> getMovie(@PathVariable String movieId) {
         return ApiResponse.<MoviesResponse>builder()
                 .result(moviesService.getById(movieId))
                 .build();
     }
 
     @GetMapping("/movieBySlug/{slug}")
-    public ApiResponse<MoviesResponse> getMovieBySlug(@PathVariable String slug){
+    public ApiResponse<MoviesResponse> getMovieBySlug(@PathVariable String slug) {
         return ApiResponse.<MoviesResponse>builder()
-                .result(moviesService.getBySlug("/"+slug))
+                .result(moviesService.getBySlug("/" + slug))
                 .build();
     }
 
+    @GetMapping("/years")
+    public List<Integer> getYears() {
+        return moviesService.getAllYear();
+    }
+
     @GetMapping("/trending")
-    public ApiResponse<List<MoviesResponse>> getMovieTrending(@RequestParam(name = "top", required = false, defaultValue = "5") int top){
+    public ApiResponse<List<MoviesResponse>> getMovieTrending(@RequestParam(name = "top", required = false, defaultValue = "5") int top) {
         return ApiResponse.<List<MoviesResponse>>builder()
                 .result(moviesService.getTopTrending(top))
                 .build();
     }
 
     @GetMapping("/topViews")
-    public ApiResponse<List<MoviesResponse>> getTopViews(@RequestParam(name = "top", required = false, defaultValue = "10") int top){
+    public ApiResponse<List<MoviesResponse>> getTopViews(@RequestParam(name = "top", required = false, defaultValue = "10") int top) {
         return ApiResponse.<List<MoviesResponse>>builder()
                 .result(moviesService.getTopViews(top))
                 .build();
     }
 
     @GetMapping("/TopNewDrama")
-    public ApiResponse<List<MoviesResponse>> getTopMovieByNewDrama(@RequestParam(name = "top", required = false, defaultValue = "16") int top){
+    public ApiResponse<List<MoviesResponse>> getTopMovieByNewDrama(@RequestParam(name = "top", required = false, defaultValue = "16") int top) {
         return ApiResponse.<List<MoviesResponse>>builder()
                 .result(moviesService.getTopNewDrama(top))
                 .build();
     }
 
     @GetMapping("/TopNewSingleMovie")
-    public ApiResponse<List<MoviesResponse>> getTopMovieByNewSingleMovie(@RequestParam(name = "top", required = false, defaultValue = "16") int top){
+    public ApiResponse<List<MoviesResponse>> getTopMovieByNewSingleMovie(@RequestParam(name = "top", required = false, defaultValue = "16") int top) {
         return ApiResponse.<List<MoviesResponse>>builder()
                 .result(moviesService.getTopNewSingleMovie(top))
                 .build();
     }
 
     @GetMapping("/MoviesAboutToShow")
-    public ApiResponse<List<MoviesResponse>> getMoviesAboutToShow(@RequestParam(name = "top", required = false, defaultValue = "5") int top){
+    public ApiResponse<List<MoviesResponse>> getMoviesAboutToShow(@RequestParam(name = "top", required = false, defaultValue = "5") int top) {
         return ApiResponse.<List<MoviesResponse>>builder()
                 .result(moviesService.getMoviesAboutToShow(top))
                 .build();
     }
 
 
-
     @PostMapping("")
-    public ApiResponse<MoviesResponse> createMovie(@RequestBody MoviesRequest request){
+    public ApiResponse<MoviesResponse> createMovie(@RequestBody MoviesRequest request) {
 
         return ApiResponse.<MoviesResponse>builder()
                 .result(moviesService.addMovie(request))
                 .build();
     }
+
     @PutMapping("/{movieId}")
-    public ApiResponse<MoviesResponse> updateMovie(@PathVariable String movieId,@RequestBody MoviesRequest request){
+    public ApiResponse<MoviesResponse> updateMovie(@PathVariable String movieId, @RequestBody MoviesRequest request) {
         return ApiResponse.<MoviesResponse>builder()
-                .result(moviesService.updateMovie(movieId,request))
+                .result(moviesService.updateMovie(movieId, request))
                 .build();
     }
 
     @RequestMapping(value = "/{movieId}", method = RequestMethod.DELETE)
-    public ApiResponse<String> deleteMovie(@PathVariable String movieId){
+    public ApiResponse<String> deleteMovie(@PathVariable String movieId) {
         moviesService.deleteMovie(movieId);
         return ApiResponse.<String>builder()
                 .result("Movie has been deleted")
