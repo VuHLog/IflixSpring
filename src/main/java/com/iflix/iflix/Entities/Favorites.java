@@ -26,7 +26,7 @@ public class Favorites {
     @JoinColumn(name = "movie_id")
     private Movies movie;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private Users user;
 }

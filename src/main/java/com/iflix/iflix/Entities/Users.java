@@ -41,8 +41,9 @@ public class Users {
     @JsonIgnore
     private List<Comments> comments;
 
-    @OneToOne(mappedBy = "user")
-    private Favorites favorite;
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Favorites> favorite;
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
