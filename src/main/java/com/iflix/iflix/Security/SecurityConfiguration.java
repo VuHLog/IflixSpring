@@ -39,6 +39,7 @@ public class SecurityConfiguration {
                 configurer -> configurer
                         .requestMatchers( HttpMethod.GET).permitAll()
                         .requestMatchers( HttpMethod.POST,PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.PUT,"/api/movies").permitAll()
                         .anyRequest().authenticated()
         );
 

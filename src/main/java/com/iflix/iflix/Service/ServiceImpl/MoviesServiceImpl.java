@@ -141,6 +141,8 @@ public class MoviesServiceImpl implements MoviesService {
     public MoviesResponse addMovie(MoviesRequest request) {
         Movies movie = moviesMapper.toMovie(request);
 
+        movie.setEpisodeCurrent(0);
+
         LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.now());
         // Chuyển đổi LocalDateTime sang Timestamp
         Timestamp timestamp = Timestamp.valueOf(localDateTime);

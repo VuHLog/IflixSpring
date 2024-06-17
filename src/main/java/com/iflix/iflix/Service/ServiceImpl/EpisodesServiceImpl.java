@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 public class EpisodesServiceImpl implements EpisodesService {
@@ -34,6 +35,11 @@ public class EpisodesServiceImpl implements EpisodesService {
     public EpisodesResponse getById(String id) {
         EpisodesResponse e = episodesMapper.toEpisodeResponse(episodesRepository.findById(id).get());
         return episodesMapper.toEpisodeResponse(episodesRepository.findById(id).get());
+    }
+
+    @Override
+    public List<EpisodesResponse> getByEpisodeNumber(int number, String movieId) {
+        return episodesRepository.findByEpisodeNumberAndMovie_Id(number,movieId).stream().map(episodesMapper::toEpisodeResponse).toList();
     }
 
     @Override
@@ -55,9 +61,15 @@ public class EpisodesServiceImpl implements EpisodesService {
         // Chuyển đổi LocalDateTime sang Timestamp
         Timestamp timestamp = Timestamp.valueOf(localDateTime);
         movie.setModifiedTime(timestamp);
-        episode.setMovie(movie);
 
-        return episodesMapper.toEpisodeResponse(episodesRepository.save(episode));
+        episode.setMovie(movie);
+        EpisodesResponse episodesResponse  = episodesMapper.toEpisodeResponse(episodesRepository.save(episode));
+
+        //mỗi khi thêm tập mới thì cập nhật trường episodeCurrent của movie
+        movie.setEpisodeCurrent(episodesRepository.countDistinctByEpisodeNumber(movie.getId()));
+        moviesRepository.saveAndFlush(movie);
+
+        return episodesResponse;
     }
 
     @Override
@@ -71,6 +83,7 @@ public class EpisodesServiceImpl implements EpisodesService {
         // Chuyển đổi LocalDateTime sang Timestamp
         Timestamp timestamp = Timestamp.valueOf(localDateTime);
         movie.setModifiedTime(timestamp);
+
         episode.setMovie(movie);
 
         return episodesMapper.toEpisodeResponse(episodesRepository.saveAndFlush(episode));
@@ -79,6 +92,11 @@ public class EpisodesServiceImpl implements EpisodesService {
     @Override
     @Transactional
     public void deleteEpisode(String episodeId) {
+        Movies movie = episodesRepository.findById(episodeId).get().getMovie();
         episodesRepository.deleteById(episodeId);
+
+        //mỗi khi xoá tập thì cập nhật trường episodeCurrent của movie
+        movie.setEpisodeCurrent(episodesRepository.countDistinctByEpisodeNumber(movie.getId()));
+        moviesRepository.saveAndFlush(movie);
     }
 }

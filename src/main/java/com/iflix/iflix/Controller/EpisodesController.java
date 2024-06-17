@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/episodes")
 public class EpisodesController {
@@ -57,6 +59,16 @@ public class EpisodesController {
                 .result(episodesService.getById(episodeId))
                 .build();
     }
+    @GetMapping("/number")
+    public ApiResponse<List<EpisodesResponse>> getEpisodeByNumber(
+            @RequestParam(name = "episodeNumber",required = true) int episodeNumber,
+            @RequestParam(name = "movieId",required = true) String movieId
+    ){
+        return ApiResponse.<List<EpisodesResponse>>builder()
+                .result(episodesService.getByEpisodeNumber(episodeNumber,movieId))
+                .build();
+    }
+
 
     @PutMapping("/{episodeId}")
     public ApiResponse<EpisodesResponse> updateEpisode(@PathVariable String episodeId,@RequestBody EpisodesRequest request){
