@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableWebSecurity
@@ -22,7 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
 
     private final String[] PUBLIC_ENDPOINTS =
-            {"/api/users","/auth/token","/auth/introspect","/auth/logout","/auth/refresh"};
+            {"/api/users","/auth/token","/auth/google","/auth/introspect","/auth/logout","/auth/refresh"};
 
     @Autowired
     @Lazy
@@ -39,7 +40,7 @@ public class SecurityConfiguration {
                 configurer -> configurer
                         .requestMatchers( HttpMethod.GET).permitAll()
                         .requestMatchers( HttpMethod.POST,PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.PUT,"/api/movies").permitAll()
+                        .requestMatchers(HttpMethod.PUT,"/api/movies/*").permitAll()
                         .anyRequest().authenticated()
         );
 
@@ -72,5 +73,10 @@ public class SecurityConfiguration {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
         return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

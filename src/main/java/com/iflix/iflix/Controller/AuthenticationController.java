@@ -10,9 +10,14 @@ import com.iflix.iflix.DTO.Response.IntrospectResponse;
 import com.iflix.iflix.Service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,6 +29,15 @@ public class AuthenticationController {
     @PostMapping("/token")
     public ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
         var res = authenticationService.authenticate(request);
+
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(res)
+                .build();
+    }
+
+    @PostMapping("/google")
+    public ApiResponse<AuthenticationResponse> googleLogin(@RequestBody Map<String, String> body) {
+        var res = authenticationService.authenticateGoogle(body);
 
         return ApiResponse.<AuthenticationResponse>builder()
                 .result(res)

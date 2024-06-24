@@ -1,6 +1,7 @@
 package com.iflix.iflix.Service.ServiceImpl;
 
 import com.iflix.iflix.DAO.InvalidatedTokenRepository;
+import com.iflix.iflix.DAO.RoleRepository;
 import com.iflix.iflix.DAO.UsersRepository;
 import com.iflix.iflix.DTO.Request.AuthenticationRequest;
 import com.iflix.iflix.DTO.Request.IntrospectRequest;
@@ -9,6 +10,7 @@ import com.iflix.iflix.DTO.Request.RefreshRequest;
 import com.iflix.iflix.DTO.Response.AuthenticationResponse;
 import com.iflix.iflix.DTO.Response.IntrospectResponse;
 import com.iflix.iflix.Entities.InvalidatedToken;
+import com.iflix.iflix.Entities.User_Role;
 import com.iflix.iflix.Entities.Users;
 import com.iflix.iflix.Exception.AppException;
 import com.iflix.iflix.Exception.ErrorCode;
@@ -22,22 +24,26 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private UsersRepository usersRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private InvalidatedTokenRepository invalidatedTokenRepository;
@@ -56,6 +62,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @NonFinal
     @Value("${jwt.refreshable-duration}")
     protected long REFRESHABLE_DURATION;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String clientId;
+
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    private String clientSecret;
 
     @Override
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
@@ -93,6 +108,49 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     }
 
+    @Override
+    public AuthenticationResponse authenticateGoogle(Map<String, String> body) {
+        String tokenRequest = body.get("token");
+        String url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + tokenRequest;
+
+        ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+
+        Map<String, Object> userInfo = response.getBody();
+
+        Users user = new Users();
+        Optional<Users> userOptional = usersRepository.findByUsername((String) userInfo.get("email"));
+        //neu khong ton tai thi them moi user
+        if(!userOptional.isPresent()){
+            user = Users.builder()
+                    .username((String) userInfo.get("email"))
+                    .phone(null)
+                    .password(null)
+                    .fullName((String) userInfo.get("name"))
+                    .avatarUrl((String) userInfo.get("picture"))
+                    .email((String) userInfo.get("email"))
+                    .build();
+
+            //add role User
+            Set<User_Role> user_roles = new HashSet<>();
+            User_Role user_role = new User_Role();
+            user_role.setRole(roleRepository.findByRoleName("User"));
+            user_role.setUser(user);
+            user_roles.add(user_role);
+            user.setUser_roles(user_roles);
+            usersRepository.save(user);
+        }else {
+            user = userOptional.get();
+        }
+
+        // login success -> create token
+        var token = generateToken(user);
+
+        return AuthenticationResponse.builder()
+                .token(token)
+                .authenticated(true)
+                .build();
+
+    }
 
 
     @Override

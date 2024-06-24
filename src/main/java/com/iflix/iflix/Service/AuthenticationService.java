@@ -10,6 +10,7 @@ import com.iflix.iflix.Entities.Users;
 import com.nimbusds.jose.JOSEException;
 
 import java.text.ParseException;
+import java.util.Map;
 
 public interface AuthenticationService {
 
@@ -18,6 +19,8 @@ public interface AuthenticationService {
 
     //check username, password -> generate token
     AuthenticationResponse authenticate(AuthenticationRequest request);
+
+    AuthenticationResponse authenticateGoogle(Map<String,String> body);
 
     public String generateToken(Users user);
 
